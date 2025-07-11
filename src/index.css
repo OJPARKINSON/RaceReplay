@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: black;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  font-weight: 500;
+  color: #646cff;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535bf2;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #1a1a1a;
+  cursor: pointer;
+  transition: border-color 0.25s;
+}
+
+button:hover {
+  border-color: #646cff;
+}
+
+button:focus,
+button:focus-visible {
+  outline: 4px auto -webkit-focus-ring-color;
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+
+  a:hover {
+    color: #747bff;
+  }
+
+  button {
+    background-color: #f9f9f9;
+  }
+}
+
+@theme {
+  --color-orange: #ff8c00;
+  --color-orange-light: #ffaa00;
+  --color-orange-dark: #ff6600;
+  --color-blue: #4a9eff;
+  --color-cyan: #00ffff;
+  --color-green: #00ff00;
+  --color-red: #ff0000;
+
+  --font-family-racing: "Courier New", monospace;
+
+  --font-size-gear: 280px;
+  --line-height-gear: 0.8;
+  --font-size-speed: 56px;
+  --font-size-rpm: 42px;
+  --font-size-laptime: 28px;
+  --font-size-data: 24px;
+  --font-size-label: 11px;
+
+  --font-size-h1: 280px;
+  /* h1 = Giant gear */
+  --font-size-h2: 28px;
+  /* h2 = Main lap times, large data */
+  --font-size-h3: 16px;
+  /* h3 = Standard data, labels */
+  --font-size-h4: 12px;
+  /* h4 = Small data, tyre values */
+
+
+  --letter-spacing-wide: 0.1em;
+  --letter-spacing-wider: 0.15em;
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+  /* 280px - Giant gear number */
+  line-height: var(--line-height-gear);
+  font-weight: 900;
+  letter-spacing: var(--letter-spacing-tight);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+  /* 28px - Main lap times, large data */
+  font-weight: bold;
+  letter-spacing: var(--letter-spacing-wider);
+  line-height: 1.2;
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+  /* 16px - Standard data values */
+  font-weight: bold;
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: 1.3;
+}
+
+h4 {
+  font-size: var(--font-size-h4);
+  /* 12px - Small data, tyre values */
+  font-weight: bold;
+  letter-spacing: var(--letter-spacing-tight);
+  line-height: 1.4;
+}
