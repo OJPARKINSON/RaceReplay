@@ -2,15 +2,20 @@ package main
 
 import (
 	"net/http"
+	"ojparkinson/RaceReplay/internal/session"
 
 	"golang.org/x/net/websocket"
 )
 
 func MessageServer(ws *websocket.Conn) {
-	println(ws.Request().URL.Query().Get("sessionID"))
+	sessionID := ws.Request().URL.Query().Get("sessionID")
+	sessionReplay := &session.SessionReplay{SessionID: sessionID}
+
+	sessionReplay.Start(ws)
+
 	defer ws.Close()
-	ws.Write([]byte("hello"))
-	ws.Write([]byte("ollie"))
+	ws.Write([]byte("Starting stream for session " + sessionID))
+
 }
 
 func main() {

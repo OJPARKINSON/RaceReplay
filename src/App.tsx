@@ -12,7 +12,7 @@ function App() {
   })
   if (error) return <div>failed to load</div>
   if (!data) return <div>loading...</div>
-  return <div>hello {data}!</div>
+  return <div>{data}!</div>
   return (
     <>
       <MCLDash />
