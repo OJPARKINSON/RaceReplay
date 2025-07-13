@@ -1,4 +1,4 @@
-export const MCLDash = () => {
+export const MCLDash = ({ data }: { data: any }) => {
     return (
         <div>
             <div className="flex justify-between gap-2 w-full">
@@ -50,7 +50,7 @@ export const MCLDash = () => {
                             </div>
                             <div>
                                 <h3 className="text-orange">BATTERY VOLTS</h3>
-                                <h3>12.1</h3>
+                                <h3>{data.Voltage}</h3>
                             </div>
                         </div>
 
@@ -59,10 +59,10 @@ export const MCLDash = () => {
                 </div>
                 <div>
                     <h3 className="text-orange">RPM</h3>
-                    <h3>8234</h3>
-                    <h1 className="text-orange !text-[140px]">6</h1>
-                    <h3>268</h3>
+                    <h3>{data.RPM}</h3>
+                    <h1 className="text-orange !text-[140px]">{data.Gear}</h1>
                     <h3 className="text-orange">SPEED</h3>
+                    <h3>{data.Speed}</h3>
                 </div>
                 <div>
                     <McLarenSwoosh />
@@ -101,7 +101,7 @@ export const MCLDash = () => {
                             </div>
                             <div>
                                 <h3 className="text-orange">FUEL LEVEL</h3>
-                                <h3 className="text-orange">26.4</h3>
+                                <h3 className="text-orange">{data.FuelLevel}</h3>
                             </div>
                         </div>
                         <h3 className="text-orange">FUEL LAST LAP</h3>
