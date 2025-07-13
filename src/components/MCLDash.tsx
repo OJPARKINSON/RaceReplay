@@ -46,7 +46,7 @@ export const MCLDash = ({ data }: { data: any }) => {
                         <div className="flex justify-between">
                             <div>
                                 <h3 className="text-orange">WATER TEMP</h3>
-                                <h3>83</h3>
+                                <h3>{data.WaterTemp}</h3>
                             </div>
                             <div>
                                 <h3 className="text-orange">BATTERY VOLTS</h3>

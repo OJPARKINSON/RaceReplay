@@ -3,9 +3,9 @@ package session
 import (
 	"context"
 	"fmt"
-	"math"
 	"ojparkinson/RaceReplay/internal/db"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/influxdata/influxdb-client-go/v2/api"
@@ -15,19 +15,25 @@ import (
 type SessionReplay struct {
 	SessionID       string
 	SpeedMultiplier float64
+	stopChan        chan struct{}
+	mu              sync.Mutex
+	stopped         bool
 }
 
 func NewSessionReplay(SessionID string) *SessionReplay {
 	return &SessionReplay{
 		SessionID:       SessionID,
 		SpeedMultiplier: 1.0,
+		stopChan:        make(chan struct{}),
+		stopped:         false,
 	}
 }
 
 type DataPoint struct {
 	Speed     int
-	Gear      int64
+	Gear      int
 	RPM       int
+	WaterTemp int
 	Voltage   float64
 	FuelLevel float64
 	TickTime  time.Time
@@ -46,6 +52,8 @@ func (s *SessionReplay) Start(ws *websocket.Conn) {
 
 	dataChannel := make(chan DataSubSet, 2)
 
+	go s.monitorConnection(ws)
+
 	go s.loadSubSets(conn, dataChannel)
 
 	s.StreamData(ws, dataChannel)
@@ -59,7 +67,13 @@ func (s *SessionReplay) loadSubSets(conn db.DB, dataChannel chan<- DataSubSet) {
 	for lapID := 1; lapID <= 1; lapID++ {
 		subset := s.loadSubSet(queryAPI, strconv.Itoa(lapID))
 
-		dataChannel <- subset
+		select {
+		case dataChannel <- subset:
+			// Successfully sent
+		case <-s.stopChan:
+			fmt.Println("Stopping data loading due to stop signal")
+			return
+		}
 	}
 }
 
@@ -82,14 +96,21 @@ func (s *SessionReplay) loadSubSet(queryAPI api.QueryAPI, lapID string) DataSubS
 			// Handle table metadata
 		}
 
-		speed := int(math.Round(result.Record().ValueByKey("speed").(float64)))
-		gear := result.Record().ValueByKey("gear").(int64)
-		rpm := int(math.Round(result.Record().ValueByKey("rpm").(float64)))
-		// fmt.Printf("recv: %+v", result.Record().Values())
-		volatage := result.Record().Values()["voltage"].(float64)
-		fuelLevel := result.Record().Values()["fuel_level"].(float64)
-		tickTime := result.Record().Time()
-		data = append(data, DataPoint{Speed: speed, TickTime: tickTime, Gear: gear, RPM: rpm, Voltage: volatage, FuelLevel: fuelLevel})
+		record := result.Record()
+		values := record.Values()
+
+		speed := GetIntValue(values["speed"])
+		gear := GetIntValue(values["gear"])
+		rpm := GetIntValue(values["rpm"])
+		volatage := GetFloatValue(values["voltage"])
+		fuelLevel := GetFloatValue(values["fuel_level"])
+		waterTemp := GetIntValue(values["waterTemp"])
+		tickTime := record.Time()
+
+		fmt.Println(speed, gear, rpm)
+		dataPoint := DataPoint{Speed: speed, TickTime: tickTime, Gear: gear, RPM: rpm, Voltage: volatage, FuelLevel: fuelLevel, WaterTemp: waterTemp}
+
+		data = append(data, dataPoint)
 	}
 
 	if result.Err() != nil {
@@ -101,22 +122,51 @@ func (s *SessionReplay) loadSubSet(queryAPI api.QueryAPI, lapID string) DataSubS
 }
 
 func (s *SessionReplay) StreamData(ws *websocket.Conn, dataChannel <-chan DataSubSet) {
+	defer s.Stop()
+
 	var lastTickTime *time.Time
 
 	for subset := range dataChannel {
+		if s.isStopped() {
+			fmt.Println("Stopping stream due to disconnection")
+			return
+		}
+
+		fmt.Printf("Streaming lap %s with %d data points\n", subset.LapID, len(subset.Data))
+
 		for i, dataPoint := range subset.Data {
-			err := websocket.JSON.Send(ws, dataPoint)
-			// ws.Write([]byte(strconv.Itoa(dataPoint.Speed)))
-			if err != nil {
-				fmt.Println("Failed to write data: " + err.Error())
+			if s.isStopped() {
+				fmt.Println("Stopping stream due to disconnection")
+				return
+			}
+
+			done := make(chan error, 1)
+			go func() {
+				done <- websocket.JSON.Send(ws, dataPoint)
+			}()
+
+			select {
+			case err := <-done:
+				if err != nil {
+					fmt.Printf("Failed to write data: %v\n", err)
+					s.Stop()
+					return
+				}
+			case <-time.After(5 * time.Second):
+				fmt.Println("Send timeout - client may be unresponsive")
+				s.Stop()
+				return
+			case <-s.stopChan:
+				fmt.Println("Stopping stream due to stop signal")
+				return
 			}
 
 			var sleepDuration time.Duration
 
 			if i < len(subset.Data)-1 {
 				nextTick := subset.Data[i+1].TickTime
-				currenTick := dataPoint.TickTime
-				sleepDuration = nextTick.Sub(currenTick)
+				currentTick := dataPoint.TickTime
+				sleepDuration = nextTick.Sub(currentTick)
 			} else if lastTickTime != nil {
 				sleepDuration = dataPoint.TickTime.Sub(*lastTickTime)
 			}
@@ -130,10 +180,55 @@ func (s *SessionReplay) StreamData(ws *websocket.Conn, dataChannel <-chan DataSu
 			sleepDuration = time.Duration(float64(sleepDuration) / s.SpeedMultiplier)
 
 			if sleepDuration > 0 {
-				time.Sleep(sleepDuration)
+				select {
+				case <-time.After(sleepDuration):
+				case <-s.stopChan:
+					fmt.Println("Sleep interrupted due to stop signal")
+					return
+				}
 			}
 
 			lastTickTime = &dataPoint.TickTime
+		}
+
+		fmt.Printf("Finished streaming lap %s\n", subset.LapID)
+	}
+
+	fmt.Println("Stream completed normally")
+}
+
+func (s *SessionReplay) Stop() {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	if !s.stopped {
+		s.stopped = true
+		close(s.stopChan)
+	}
+}
+
+func (s *SessionReplay) isStopped() bool {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.stopped
+}
+
+func (s *SessionReplay) monitorConnection(ws *websocket.Conn) {
+	ticker := time.NewTicker(10 * time.Second)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			if s.isStopped() {
+				return
+			}
+
+			if err := websocket.Message.Send(ws, `{"type":"ping"}`); err != nil {
+				fmt.Printf("Connection lost (ping failed): %v\n", err)
+				s.Stop()
+				return
+			}
 		}
 	}
 }
