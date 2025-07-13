@@ -37,8 +37,8 @@ type DataPoint struct {
 	Voltage        float64
 	FuelLevel      float64
 	LapID          int
-	CurrentLapTime float64
-	DeltaToBestLap float64
+	CurrentLapTime string
+	DeltaToBestLap string
 	LastLapTime    float64
 	LFpressure     float64
 	RFpressure     float64
@@ -115,20 +115,20 @@ func (s *SessionReplay) loadSubSet(queryAPI api.QueryAPI, lapID string) DataSubS
 		gear := GetIntValue(values["gear"])
 		speed := GetIntValue(values["speed"])
 		lapId := GetIntValue(values["lap_id"])
-		volatage := GetFloatValue(values["voltage"])
+		volatage := GetFloatValue(values["voltage"], 1)
 		waterTemp := GetIntValue(values["waterTemp"])
-		fuelLevel := GetFloatValue(values["fuel_level"])
-		currentLapTime := GetFloatValue(values["lapCurrentLapTime"])
-		deltaToBestLap := GetFloatValue(values["lapDeltaToBestLap"])
-		lastLapTime := GetFloatValue(values["lapLastLapTime"])
-		lFpressure := GetFloatValue(values["lFpressure"])
-		rFpressure := GetFloatValue(values["rFpressure"])
-		rRpressure := GetFloatValue(values["rRpressure"])
-		lRpressure := GetFloatValue(values["lRpressure"])
-		lFtempCM := GetFloatValue(values["lFtempCM"])
-		rFtempCM := GetFloatValue(values["rFtempCM"])
-		lRtempCM := GetFloatValue(values["lRtempCM"])
-		rRtempCM := GetFloatValue(values["rRtempCM"])
+		fuelLevel := GetFloatValue(values["fuel_level"], 1)
+		currentLapTime := GetTimeFormattedWithMillis(values["lapCurrentLapTime"])
+		deltaToBestLap := GetTimeFormattedWithMillis(values["lapDeltaToBestLap"])
+		lastLapTime := GetFloatValue(values["lapLastLapTime"], 2)
+		lFpressure := GetPressureInBar(values["lFpressure"], 2)
+		rFpressure := GetPressureInBar(values["rFpressure"], 2)
+		rRpressure := GetPressureInBar(values["rRpressure"], 2)
+		lRpressure := GetPressureInBar(values["lRpressure"], 2)
+		lFtempCM := GetFloatValue(values["lFtempCM"], 0)
+		rFtempCM := GetFloatValue(values["rFtempCM"], 0)
+		lRtempCM := GetFloatValue(values["lRtempCM"], 0)
+		rRtempCM := GetFloatValue(values["rRtempCM"], 0)
 
 		tickTime := record.Time()
 

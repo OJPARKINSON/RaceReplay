@@ -61,8 +61,8 @@ export const MCLDash = ({ data }: { data: any }) => {
                     <h3 className="text-orange">RPM</h3>
                     <h3>{data.RPM}</h3>
                     <h1 className="text-orange !text-[140px]">{data.Gear}</h1>
+                    <h3 className="mt-2">{data.Speed}</h3>
                     <h3 className="text-orange">SPEED</h3>
-                    <h3>{data.Speed}</h3>
                 </div>
                 <div>
                     <McLarenSwoosh />
