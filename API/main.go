@@ -10,7 +10,7 @@ import (
 func MessageServer(ws *websocket.Conn) {
 	sessionID := ws.Request().URL.Query().Get("sessionID")
 	sessionReplay := session.NewSessionReplay("session123")
-	sessionReplay.SpeedMultiplier = 1.5
+	sessionReplay.SpeedMultiplier = 2.5
 
 	sessionReplay.Start(ws)
 

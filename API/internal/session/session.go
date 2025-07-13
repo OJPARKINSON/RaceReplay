@@ -36,7 +36,7 @@ type DataPoint struct {
 	WaterTemp      int
 	Voltage        float64
 	FuelLevel      float64
-	LapID          int
+	LapID          string
 	CurrentLapTime string
 	DeltaToBestLap string
 	LastLapTime    float64
@@ -76,7 +76,7 @@ func (s *SessionReplay) loadSubSets(conn db.DB, dataChannel chan<- DataSubSet) {
 
 	queryAPI := conn.Client.QueryAPI("myorg")
 
-	for lapID := 1; lapID <= 1; lapID++ {
+	for lapID := 0; lapID <= 10; lapID++ {
 		subset := s.loadSubSet(queryAPI, strconv.Itoa(lapID))
 
 		select {
@@ -113,8 +113,8 @@ func (s *SessionReplay) loadSubSet(queryAPI api.QueryAPI, lapID string) DataSubS
 
 		rpm := GetIntValue(values["rpm"])
 		gear := GetIntValue(values["gear"])
-		speed := GetIntValue(values["speed"])
-		lapId := GetIntValue(values["lap_id"])
+		speed := GetIntSpeedValue(values["speed"])
+		lapId := values["lap_id"].(string)
 		volatage := GetFloatValue(values["voltage"], 1)
 		waterTemp := GetIntValue(values["waterTemp"])
 		fuelLevel := GetFloatValue(values["fuel_level"], 1)
@@ -125,10 +125,10 @@ func (s *SessionReplay) loadSubSet(queryAPI api.QueryAPI, lapID string) DataSubS
 		rFpressure := GetPressureInBar(values["rFpressure"], 2)
 		rRpressure := GetPressureInBar(values["rRpressure"], 2)
 		lRpressure := GetPressureInBar(values["lRpressure"], 2)
-		lFtempCM := GetFloatValue(values["lFtempCM"], 0)
-		rFtempCM := GetFloatValue(values["rFtempCM"], 0)
-		lRtempCM := GetFloatValue(values["lRtempCM"], 0)
-		rRtempCM := GetFloatValue(values["rRtempCM"], 0)
+		lFtempCM := GetFloatValue(values["lFtempM"], 0)
+		rFtempCM := GetFloatValue(values["rFtempM"], 0)
+		lRtempCM := GetFloatValue(values["lRtempM"], 0)
+		rRtempCM := GetFloatValue(values["rRtempM"], 0)
 
 		tickTime := record.Time()
 

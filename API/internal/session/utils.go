@@ -79,3 +79,18 @@ func GetDurationFromSeconds(val interface{}) time.Duration {
 	seconds := GetFloatValue(val, 3)
 	return time.Duration(seconds * float64(time.Second))
 }
+
+func GetIntSpeedValue(val interface{}) int {
+	if val == nil {
+		return 0
+	}
+
+	if f, ok := val.(float64); ok {
+		return int(math.Round(f) * 2.237)
+	}
+
+	if i, ok := val.(int64); ok {
+		return int(i)
+	}
+	return 0
+}
