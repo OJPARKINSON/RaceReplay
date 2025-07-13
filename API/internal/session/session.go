@@ -30,13 +30,25 @@ func NewSessionReplay(SessionID string) *SessionReplay {
 }
 
 type DataPoint struct {
-	Speed     int
-	Gear      int
-	RPM       int
-	WaterTemp int
-	Voltage   float64
-	FuelLevel float64
-	TickTime  time.Time
+	Speed          int
+	Gear           int
+	RPM            int
+	WaterTemp      int
+	Voltage        float64
+	FuelLevel      float64
+	LapID          int
+	CurrentLapTime float64
+	DeltaToBestLap float64
+	LastLapTime    float64
+	LFpressure     float64
+	RFpressure     float64
+	RRpressure     float64
+	LRpressure     float64
+	LFtempCM       float64
+	RFtempCM       float64
+	LRtempCM       float64
+	RRtempCM       float64
+	TickTime       time.Time
 }
 
 type DataSubSet struct {
@@ -99,16 +111,48 @@ func (s *SessionReplay) loadSubSet(queryAPI api.QueryAPI, lapID string) DataSubS
 		record := result.Record()
 		values := record.Values()
 
-		speed := GetIntValue(values["speed"])
-		gear := GetIntValue(values["gear"])
 		rpm := GetIntValue(values["rpm"])
+		gear := GetIntValue(values["gear"])
+		speed := GetIntValue(values["speed"])
+		lapId := GetIntValue(values["lap_id"])
 		volatage := GetFloatValue(values["voltage"])
-		fuelLevel := GetFloatValue(values["fuel_level"])
 		waterTemp := GetIntValue(values["waterTemp"])
+		fuelLevel := GetFloatValue(values["fuel_level"])
+		currentLapTime := GetFloatValue(values["lapCurrentLapTime"])
+		deltaToBestLap := GetFloatValue(values["lapDeltaToBestLap"])
+		lastLapTime := GetFloatValue(values["lapLastLapTime"])
+		lFpressure := GetFloatValue(values["lFpressure"])
+		rFpressure := GetFloatValue(values["rFpressure"])
+		rRpressure := GetFloatValue(values["rRpressure"])
+		lRpressure := GetFloatValue(values["lRpressure"])
+		lFtempCM := GetFloatValue(values["lFtempCM"])
+		rFtempCM := GetFloatValue(values["rFtempCM"])
+		lRtempCM := GetFloatValue(values["lRtempCM"])
+		rRtempCM := GetFloatValue(values["rRtempCM"])
+
 		tickTime := record.Time()
 
-		fmt.Println(speed, gear, rpm)
-		dataPoint := DataPoint{Speed: speed, TickTime: tickTime, Gear: gear, RPM: rpm, Voltage: volatage, FuelLevel: fuelLevel, WaterTemp: waterTemp}
+		dataPoint := DataPoint{
+			Speed:          speed,
+			TickTime:       tickTime,
+			Gear:           gear,
+			RPM:            rpm,
+			Voltage:        volatage,
+			FuelLevel:      fuelLevel,
+			WaterTemp:      waterTemp,
+			LapID:          lapId,
+			CurrentLapTime: currentLapTime,
+			DeltaToBestLap: deltaToBestLap,
+			LastLapTime:    lastLapTime,
+			LFpressure:     lFpressure,
+			RFpressure:     rFpressure,
+			RRpressure:     rRpressure,
+			LRpressure:     lRpressure,
+			LFtempCM:       lFtempCM,
+			RFtempCM:       rFtempCM,
+			LRtempCM:       lRtempCM,
+			RRtempCM:       rRtempCM,
+		}
 
 		data = append(data, dataPoint)
 	}

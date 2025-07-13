@@ -27,23 +27,23 @@ export const MCLDash = ({ data }: { data: any }) => {
             </div>
             <div className="grid grid-cols-3">
                 <div>
-                    <McLarenSwoosh />
+                    <McLarenSwoosh className="justify-self-end" />
                     <div className="px-4">
                         <h3 className="text-orange">PREDICTED LAPTIME</h3>
-                        <h2>01:28:36</h2>
+                        <h2>{data.CurrentLapTime}</h2>
                         <h3 className="text-orange">LAP DELTA</h3>
-                        <h2 className="text-green">-00:00</h2>
+                        <h2 className="text-green">{data.DeltaToBestLap}</h2>
                         <div className="flex justify-between">
                             <div>
                                 <h3 className="text-orange">LAST LAP</h3>
-                                <h3>01:29:88</h3>
+                                <h3>{data.LastLapTime}</h3>
                             </div>
                             <div>
                                 <h3 className="text-orange">LAPS</h3>
-                                <h3>2</h3>
+                                <h3>{data.LapID}</h3>
                             </div>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between gap-1.5">
                             <div>
                                 <h3 className="text-orange">WATER TEMP</h3>
                                 <h3>{data.WaterTemp}</h3>
@@ -55,7 +55,7 @@ export const MCLDash = ({ data }: { data: any }) => {
                         </div>
 
                     </div>
-                    <McLarenSwoosh />
+                    <McLarenSwoosh className="justify-self-end" />
                 </div>
                 <div>
                     <h3 className="text-orange">RPM</h3>
@@ -71,26 +71,26 @@ export const MCLDash = ({ data }: { data: any }) => {
                         <div>
                             <div className="grid grid-cols-4 p-0.5 justify-items-center">
                                 <div>
-                                    <h4>1.34</h4>
-                                    <h4>84</h4>
+                                    <h4>{data.LFpressure}</h4>
+                                    <h4>{data.LFtempCM}</h4>
                                 </div>
                                 <div className="h-[34px] w-[24px] rounded-sm bg-blue-300" />
                                 <div className="h-[34px] w-[24px] rounded-sm bg-blue-300" />
                                 <div>
-                                    <h4>1.34</h4>
-                                    <h4>84</h4>
+                                    <h4>{data.LRpressure}</h4>
+                                    <h4>{data.LRtempCM}</h4>
                                 </div>
                             </div>
                             <div className="grid grid-cols-4 p-0.5 justify-items-center">
                                 <div>
-                                    <h4>1.34</h4>
-                                    <h4>84</h4>
+                                    <h4>{data.RFpressure}</h4>
+                                    <h4>{data.RFtempCM}</h4>
                                 </div>
                                 <div className="h-[34px] w-[24px] rounded-sm bg-blue-300" />
                                 <div className="h-[34px] w-[24px] rounded-sm bg-blue-300" />
                                 <div>
-                                    <h4>1.34</h4>
-                                    <h4>84</h4>
+                                    <h4>{data.RRpressure}</h4>
+                                    <h4>{data.RRtempCM}</h4>
                                 </div>
                             </div>
                         </div>
@@ -115,10 +115,10 @@ export const MCLDash = ({ data }: { data: any }) => {
     )
 }
 
-const McLarenSwoosh = () => {
+const McLarenSwoosh = ({ className = "" }: { className?: string }) => {
 
     return (
-        <svg width="200" height="25" viewBox="0 0 400 25">
+        <svg width="200" height="25" viewBox="0 0 400 25" className={className}>
             <defs>
                 <linearGradient id="mclarenLine" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="transparent" />
