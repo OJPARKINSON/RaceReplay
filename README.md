@@ -1,4 +1,6 @@
 # Race Replay
 
-Work out how to parse the data to send it
-work out how the key works on the websocket on the front end
+Predicted lap time to 00:01:00 default
+Lap data is empty until there is a value
+Water temp is blue cold, orange optimal and red for overheating
+fuel last lap is 0.000

@@ -72,7 +72,7 @@ func GetTimeFormattedWithMillis(val interface{}) string {
 	minutes := int(totalSeconds) / 60
 	seconds := math.Mod(totalSeconds, 60)
 
-	return fmt.Sprintf("%02d:%06.3f", minutes, seconds)
+	return fmt.Sprintf("%02d:%02f", minutes, seconds)
 }
 
 func GetDurationFromSeconds(val interface{}) time.Duration {
@@ -93,4 +93,30 @@ func GetIntSpeedValue(val interface{}) int {
 		return int(i)
 	}
 	return 0
+}
+
+type stringFormat int
+
+const (
+	CurrentLapTime = iota
+	Delta
+	LastLapTime
+	BatteryVolts
+	FuelUsed
+	FuelLevel
+	FuelLastLap
+	TyrePressure
+	TyreTemp
+)
+
+var FormatString = map[stringFormat]string{
+	CurrentLapTime: "%02d:%02d:%06.3f", // 00:00:00.000
+	Delta:          "%02d:%06.3f",      // 00:00.000
+	LastLapTime:    "%02d:%02d:%06.3f", // 00:00:00.000
+	BatteryVolts:   "%04.1f",           // 00.0
+	FuelUsed:       "%.1f",             // 0.0
+	FuelLevel:      "%04.1f",           // 00.0
+	FuelLastLap:    "%.3f",             // 0.000
+	TyrePressure:   "%.2f",             // 0.00
+	TyreTemp:       "%02.0f",           // 00
 }
